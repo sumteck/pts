@@ -1,5 +1,5 @@
 {
-  "short_name": "Patientapp",
+  "short_name": "PTS App",
   "name": "Patient Treated Statement",
   "icons": [
     {
@@ -11,12 +11,13 @@
     {
       "src": "logo512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ],
-  "start_url": "./index.html",
+  "start_url": ".",
   "display": "standalone",
-  "theme_color": "#87CEEB",
-  "background_color": "#ffffff",
-  "orientation": "landscape"
+  "theme_color": "#1a6fc4",
+  "background_color": "#f1f5f9",
+  "orientation": "portrait"
 }
