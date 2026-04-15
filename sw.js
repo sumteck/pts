@@ -1,7 +1,10 @@
-const CACHE_NAME = 'Patient-app';
+const CACHE_NAME = 'pts-app-v1';
 const ASSETS_TO_CACHE = [
-  'index.html',
-  'manifest.json',
+  './',
+  './index.html',
+  './manifest.json',
+  './logo192.png',
+  './logo512.png',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css',
   'https://fonts.googleapis.com/css2?family=Public+Sans:wght@600;700&family=Noto+Sans+Malayalam:wght@400;700&display=swap'
 ];
@@ -10,9 +13,12 @@ const ASSETS_TO_CACHE = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
+      console.log('Caching essential assets');
       return cache.addAll(ASSETS_TO_CACHE);
     })
   );
+  // Force the waiting service worker to become the active service worker
+  self.skipWaiting();
 });
 
 // Activate Event
@@ -24,13 +30,18 @@ self.addEventListener('activate', (event) => {
       );
     })
   );
+  self.clients.claim();
 });
 
 // Fetch Event
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
+      // Return cached asset if found, otherwise fetch from network
+      return response || fetch(event.request).catch(() => {
+        // Fallback for offline mode if needed
+        console.log('Fetch failed, offline mode');
+      });
     })
   );
 });
