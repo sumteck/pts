@@ -1,0 +1,22 @@
+{
+  "short_name": "Patientapp",
+  "name": "Patient Treated Statement",
+  "icons": [
+    {
+      "src": "logo192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "./index.html",
+  "display": "standalone",
+  "theme_color": "#87CEEB",
+  "background_color": "#ffffff",
+  "orientation": "landscape"
+}
