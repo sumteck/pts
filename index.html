@@ -56,6 +56,27 @@
             background: #e0f2fe;
             min-height: 100vh;
         }
+        css
+/* Visit Counter Style */
+.visit-counter {
+    background: rgba(173, 1, 1, 0.4);
+    backdrop-filter: blur(8px);
+    padding: 8px 18px;
+    border-radius: 50px;
+    color: var(--primary-dark);
+    font-size: 13.5px;
+    font-weight: 700;
+    font-family: var(--font-main);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 15px;
+    border: 1px solid rgba(246, 6, 6, 0.6);
+    box-shadow: 0 4px 12px rgba(97, 2, 2, 0.05);
+}
+.visit-counter i {
+    color: var(--primary);
+}
 
         /* ===================================================
            WELCOME SCREEN
@@ -545,6 +566,10 @@
         </a>
     </div>
 
+     <div class="visit-counter">
+    <i class="fas fa-eye"></i> ആകെ സന്ദർശകർ: <span id="visit-count">...</span>
+</div>
+
 </div>
 
 <!-- ===== MAIN APP ===== -->
@@ -801,6 +826,25 @@
         // Clean up class after print dialog closes
         setTimeout(() => document.body.classList.remove('admin-print-mode'), 800);
     }
+</script>
+
+    <script>
+    // API Visit Counter Setup
+    document.addEventListener("DOMContentLoaded", () => {
+        const namespace = "pts-sumteck";
+        const key = "page-visits"; 
+        
+        // counterapi.dev എന്ന ഫ്രീ API ഉപയോഗിച്ച് കൗണ്ട് കൂട്ടുകയും ഡാറ്റ എടുക്കുകയും ചെയ്യുന്നു
+        fetch(`https://api.counterapi.dev/v1/${namespace}/${key}/up`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('visit-count').innerText = data.count;
+            })
+            .catch(error => {
+                console.error('Counter API Error:', error);
+                document.getElementById('visit-count').innerText = "0";
+            });
+    });
 </script>
 
 </body>
