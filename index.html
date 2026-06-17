@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+
+    <link rel="manifest" href="manifest.json">
+
+<!-- WhatsApp & Facebook Preview Meta Tags -->
+<meta property="og:title" content="Patient Treated Statement">
+<meta property="og:description" content="Generate and Print Patient Treated Statement PDF easily.">
+<meta property="og:image" content="https://sumteck.github.io/pts/logo512.png">
+<meta property="og:url" content="https://sumteck.github.io/pts/">
+<meta property="og:type" content="website">
+
+<!-- Mobile App Icon for iOS -->
+<link rel="apple-touch-icon" href="https://sumteck.github.io/pts/logo512.png">
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('Service Worker Registered'))
+        .catch(err => console.log('Service Worker Failed', err));
+    });
+  }
+</script>
+
+    <meta charset="UTF-8">
+    <title>Patient Treated Statement</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ===== CSS VARIABLES ===== */
+        :root {
+            --primary: #1a6fc4;
+            --primary-dark: #124f8f;
+            --success: #1db954;
+            --warning: #f59e0b;
+            --info: #0ea5e9;
+            --glass: rgba(255,255,255,0.82);
+            --glass-border: rgba(255,255,255,0.65);
+            --shadow-lg: 0 28px 72px rgba(0,0,0,0.22), 0 6px 20px rgba(0,0,0,0.13);
+            --shadow-hover: 0 40px 96px rgba(0,0,0,0.30), 0 10px 36px rgba(0,0,0,0.17);
+            --shadow-card: 0 8px 32px rgba(0,0,0,0.13);
+            --radius: 16px;
+            --font-main: 'Poppins', sans-serif;
+            --font-body: 'Nunito', sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: var(--font-body);
+            background: #e0f2fe;
+            min-height: 100vh;
+        }
+
+        /* Visit Counter Style */
+        .visit-counter {
+            background: rgba(173, 1, 1, 0.4);
+            backdrop-filter: blur(8px);
+            padding: 8px 18px;
+            border-radius: 50px;
+            color: var(--primary-dark);
+            font-size: 13.5px;
+            font-weight: 700;
+            font-family: var(--font-main);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 15px;
+            border: 1px solid rgba(246, 6, 6, 0.6);
+            box-shadow: 0 4px 12px rgba(97, 2, 2, 0.05);
+        }
+        .visit-counter i {
+            color: var(--primary);
+        }
+
+        /* ===================================================
+           WELCOME SCREEN
+        =================================================== */
+        .welcome-screen {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 32px;
+            background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 40%, #7dd3fc 70%, #bae6fd 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-screen::before,
+        .welcome-screen::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.12);
+            animation: floatBubble 8s ease-in-out infinite;
+            pointer-events: none;
+        }
+        .welcome-screen::before {
+            width: 420px; height: 420px;
+            top: -120px; left: -120px;
+        }
+        .welcome-screen::after {
+            width: 320px; height: 320px;
+            bottom: -90px; right: -90px;
+            animation-delay: 3s;
+        }
+        @keyframes floatBubble {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50%       { transform: translateY(-22px) scale(1.04); }
+        }
+
+        .setup-box {
+            background: var(--glass);
+            backdrop-filter: blur(26px);
+            -webkit-backdrop-filter: blur(26px);
+            border: 1.5px solid var(--glass-border);
+            padding: 56px 52px 50px;
+            border-radius: 28px;
+            box-shadow: var(--shadow-lg), 0 0 0 1.5px rgba(255,255,255,0.35) inset;
+            text-align: center;
+            width: 350px;
+            z-index: 1;
+            animation: floatCard 6s ease-in-out infinite;
+            transition: box-shadow 0.35s ease, transform 0.35s ease;
+        }
+        .setup-box:hover {
+            box-shadow: var(--shadow-hover), 0 0 0 1.5px rgba(255,255,255,0.45) inset;
+            animation-play-state: paused;
+            transform: translateY(-18px) scale(1.012);
+        }
+        @keyframes floatCard {
+            0%, 100% { transform: translateY(0px); }
+            50%       { transform: translateY(-14px); }
+        }
+
+        .setup-box h1 {
+            font-family: var(--font-main);
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 6px;
+            letter-spacing: -0.5px;
+        }
+        .setup-box p {
+            font-size: 13.5px;
+            color: #64748b;
+            margin-bottom: 32px;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #1a6fc4 0%, #0ea5e9 60%, #38bdf8 100%);
+            color: white;
+            border: none;
+            border-radius: 13px;
+            padding: 16px 0;
+            width: 100%;
+            font-size: 17px;
+            font-weight: 700;
+            font-family: var(--font-main);
+            letter-spacing: 1.4px;
+            cursor: pointer;
+            box-shadow: 0 6px 26px rgba(14,165,233,0.52), 0 2px 6px rgba(0,0,0,0.14);
+            transition: transform 0.2s cubic-bezier(.34,1.56,.64,1), box-shadow 0.2s ease, filter 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-start::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .btn-start:hover {
+            transform: scale(1.08);
+            box-shadow: 0 14px 44px rgba(14,165,233,0.70), 0 4px 12px rgba(0,0,0,0.16);
+            filter: brightness(1.1) saturate(1.15);
+        }
+        .btn-start:active { transform: scale(0.96); }
+
+        .contact-container {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            z-index: 1;
+        }
+        .contact-card {
+            background: rgba(255,255,255,0.20);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            color: white;
+            padding: 11px 22px;
+            border-radius: 50px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-weight: 700;
+            font-size: 13.5px;
+            border: 1.5px solid rgba(255,255,255,0.48);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+            transition: background 0.25s, transform 0.22s cubic-bezier(.34,1.56,.64,1), box-shadow 0.22s, border-color 0.22s, color 0.2s;
+        }
+        .contact-card:hover {
+            background: #25d366;
+            transform: translateY(-4px) scale(1.06);
+            box-shadow: 0 10px 32px rgba(37,211,102,0.55);
+            border-color: #1fba58;
+            color: #fff;
+        }
+        .contact-card i { font-size: 17px; }
+
+        /* ===================================================
+           MAIN APP
+        =================================================== */
+        .container {
+            display: none;
+            background: #f1f5f9;
+            min-height: 100vh;
+            max-width: 1120px;
+            margin: auto;
+            padding: 30px;
+        }
+
+        .no-print {
+            background: white;
+            padding: 22px 24px;
+            border-radius: var(--radius);
+            margin-bottom: 22px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid #e2e8f0;
+        }
+
+        .input-group { display: flex; flex-direction: column; text-align: left; }
+        .input-group label {
+            font-size: 11.5px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .input-group input,
+        .input-group select {
+            padding: 9px 13px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 9px;
+            font-size: 14px;
+            font-family: var(--font-body);
+            color: #1e293b;
+            background: #f8fafc;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(26,111,196,0.12);
+            background: white;
+        }
+
+        #monthPrintArea, #adminArea {
+            background: white;
+            border-radius: var(--radius);
+            padding: 28px 24px 20px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid #e2e8f0;
+        }
+        #adminArea { margin-top: 28px; display: none; }
+
+        .report-title { text-align: center; text-transform: uppercase; margin-bottom: 8px; }
+        .report-title h2 {
+            font-family: var(--font-main);
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+        .report-title h3 {
+            font-family: var(--font-main);
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+            display: inline-block;
+            padding-bottom: 4px;
+            margin-top: 4px;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 14px;
+            table-layout: fixed;
+        }
+        th, td {
+            border: 1px solid #cbd5e1;
+            padding: 10px 4px;
+            text-align: center;
+            font-weight: 700;
+            width: 8.33%; /* 12 കോളങ്ങൾ ഉള്ളതുകൊണ്ട് വീതി അഡ്ജസ്റ്റ് ചെയ്തു */
+            font-size: 14px;
+            font-family: var(--font-main);
+        }
+        th {
+            background: linear-gradient(135deg, #1a6fc4, #0ea5e9);
+            color: white;
+            border-color: #1565a8;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+        tr:nth-child(2) td { background: #f1f5f9; color: #475569; font-size: 11.5px; }
+        tr:nth-child(3) td { background: white; }
+        tr:last-child td  { background: #dbeafe; color: #0c4a6e; font-size: 14.5px; }
+
+        table input[type="number"] {
+            width: 90%;
+            padding: 5px 4px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 14.5px;
+            font-weight: 700;
+            font-family: var(--font-main);
+            background: #f8fafc;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        table input[type="number"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(26,111,196,0.1);
+        }
+        table input[type="number"]::-webkit-inner-spin-button,
+        table input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        table input[type="number"] { -moz-appearance: textfield; }
+
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 22px;
+        }
+        .btn {
+            padding: 12px 26px;
+            border: none;
+            border-radius: 11px;
+            cursor: pointer;
+            color: white;
+            font-weight: 700;
+            font-family: var(--font-main);
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            transition: transform 0.2s cubic-bezier(.34,1.56,.64,1), box-shadow 0.2s ease, filter 0.2s ease;
+            letter-spacing: 0.4px;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .btn i { font-size: 15px; transition: transform 0.2s ease; }
+        .btn:hover i { transform: scale(1.18) rotate(-4deg); }
+        .btn:hover  { transform: translateY(-4px) scale(1.03); filter: brightness(1.08); }
+        .btn:active { transform: translateY(0) scale(0.97); }
+
+        .btn-save {
+            background: linear-gradient(135deg, #1db954, #16a34a);
+            box-shadow: 0 4px 18px rgba(29,185,84,0.32);
+        }
+        .btn-save:hover { box-shadow: 0 10px 30px rgba(29,185,84,0.55); }
+
+        .btn-print {
+            background: linear-gradient(135deg, #1a6fc4, #0ea5e9);
+            box-shadow: 0 4px 18px rgba(14,165,233,0.32);
+        }
+        .btn-print:hover { box-shadow: 0 10px 30px rgba(14,165,233,0.55); }
+
+        .btn-admin {
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            box-shadow: 0 4px 18px rgba(245,158,11,0.32);
+        }
+        .btn-admin:hover { box-shadow: 0 10px 30px rgba(249,115,22,0.55); }
+
+        .btn-close {
+            background: linear-gradient(135deg, #64748b, #475569);
+            box-shadow: 0 4px 14px rgba(100,116,139,0.28);
+        }
+        .btn-close:hover { box-shadow: 0 10px 24px rgba(71,85,105,0.45); }
+
+        /* ===================================================
+           PRINT STYLES
+        =================================================== */
+        @media print {
+            @page {
+                size: A4 landscape; 
+                margin-top: 5cm; 
+                margin-bottom: 0.5cm;
+                margin-left: 0.5cm;
+                margin-right: 0.5cm;
+            }
+
+            *, *::before, *::after {
+                background-color: white !important;
+                background-image: none !important;
+                color: black !important;
+                box-shadow: none !important;
+                text-shadow: none !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .welcome-screen, .no-print, .btn-group { display: none !important; }
+
+            html, body {
+                background-color: white !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .container {
+                display: block !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                background-color: white !important;
+                min-height: unset !important;
+            }
+
+            #monthPrintArea, #adminArea {
+                border: none !important;
+                padding: 4px 0 0 0 !important;
+                margin: 0 !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                background-color: white !important;
+            }
+
+            .report-title h2 { font-size: 1.1rem !important; color: black !important; }
+            .report-title h3 { font-size: 0.9rem !important; color: black !important; border-bottom: 1.5px solid black !important; }
+
+            table {
+                border-collapse: collapse !important;
+                width: 100% !important;
+                margin-top: 8px !important;
+                table-layout: fixed !important;
+                background-color: white !important;
+            }
+
+            th, td {
+                background-color: white !important;
+                color: black !important;
+                border: 1px solid #000 !important;
+                padding: 8px 4px !important;
+                font-size: 12px !important;
+                font-weight: 700 !important;
+                text-align: center !important;
+            }
+
+            table input[type="number"] {
+                border: none !important;
+                outline: none !important;
+                background-color: transparent !important;
+                box-shadow: none !important;
+                width: 100% !important;
+                font-size: 12px !important;
+                font-weight: 700 !important;
+                color: black !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            #monthPrintArea { display: block !important; }
+            #adminArea      { display: none !important; }
+
+            body.admin-print-mode #monthPrintArea   { display: none !important; }
+            body.admin-print-mode .btn-group        { display: none !important; }
+            body.admin-print-mode #adminArea { display: block !important; margin-top: 0 !important; }
+            body.admin-print-mode #adminArea .btn-group { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== WELCOME SCREEN ===== -->
+<div class="welcome-screen" id="welcomePage">
+    <div class="setup-box">
+        <img src="logo192.png" alt="Patients Treated Logo" class="logo">
+        <h1>Welcome</h1>
+        <p>Patient Statement System</p>
+        <button class="btn-start" onclick="enterApp()">
+            <i class="fas fa-play-circle"></i> START
+        </button>
+    </div>
+
+    <div class="contact-container">
+        <a href="https://wa.me/919495405719" target="_blank" class="contact-card">
+            <i class="fab fa-whatsapp"></i><span>Aravind M</span>
+        </a>
+        <a href="https://wa.me/919447595575" target="_blank" class="contact-card">
+            <i class="fab fa-whatsapp"></i><span>Sumesh T K</span>
+        </a>
+        <a href="https://wa.me/919946479273" target="_blank" class="contact-card">
+            <i class="fab fa-whatsapp"></i><span>Pratheesh M P</span>
+        </a>
+    </div>
+
+    <div class="visitor-counter-card">
+        <h3>👁️സന്ദർശകർ <div id="count-value"></div></h3>
+    </div>
+
+    <style>
+        .visitor-counter-card {
+            background-color: #e0f2fe;
+            border: 2px solid #7dd3fc;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            max-width: 200px;
+            margin: 10px auto;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .visitor-counter-card h3 {
+            margin: 0;
+            font-size: 14px;
+            color: #0369a1;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        #count-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #0c4a6e;
+            margin-top: 5px;
+        }
+    </style>
+
+    <script>
+        fetch('https://sumteck.tksumesh85.workers.dev?site=pts')
+            .then(response => response.json())
+            .then(data => { document.getElementById('count-value').innerText = data.views; })
+            .catch(err => {
+                document.getElementById('count-value').innerText = "0";
+                console.error("Error loading counter", err);
+            });
+    </script>
+</div>
+
+<!-- ===== MAIN APP ===== -->
+<div class="container" id="mainApp">
+    <div class="no-print">
+        <div style="display:grid; grid-template-columns:1.6fr 0.85fr 0.85fr 1fr; gap:15px;">
+            <div class="input-group">
+                <label><i class="fas fa-hospital" style="margin-right:5px;color:#1a6fc4;"></i>സ്ഥാപനത്തിന്റെ പേര്</label>
+                <input type="text" id="instName" placeholder="പേര് ടൈപ്പ് ചെയ്യുക" oninput="saveSettings()">
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-calendar-alt" style="margin-right:5px;color:#1a6fc4;"></i>സാമ്പത്തിക വർഷം</label>
+                <input type="text" id="finYear" placeholder="ഉദാ: 2025-26" oninput="saveSettings()">
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-hashtag" style="margin-right:5px;color:#1a6fc4;"></i>വർഷം (Year)</label>
+                <input type="text" id="yearInput" placeholder="ഉദാ: 2025" oninput="saveSettings(); syncData()">
+            </div>
+            <div class="input-group">
+                <label><i class="fas fa-calendar-check" style="margin-right:5px;color:#1a6fc4;"></i>മാസം</label>
+                <select id="monthSelect" onchange="syncData()">
+                    <option value="APRIL">APRIL</option><option value="MAY">MAY</option>
+                    <option value="JUNE">JUNE</option><option value="JULY">JULY</option>
+                    <option value="AUGUST">AUGUST</option><option value="SEPTEMBER">SEPTEMBER</option>
+                    <option value="OCTOBER">OCTOBER</option><option value="NOVEMBER">NOVEMBER</option>
+                    <option value="DECEMBER">DECEMBER</option><option value="JANUARY">JANUARY</option>
+                    <option value="FEBRUARY">FEBRUARY</option><option value="MARCH">MARCH</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── MONTHLY REPORT ── -->
+    <div id="monthPrintArea">
+        <div class="report-title">
+            <h2 id="dispInst"></h2>
+            <h3>PATIENT TREATED STATEMENT FOR THE MONTH OF <span id="dispMonth"></span></h3>
+        </div>
+        <table>
+            <tr>
+                <th colspan="4">NEW</th>
+                <th colspan="4">OLD</th>
+                <th colspan="4">TOTAL</th>
+            </tr>
+            <tr>
+                <td>MALE</td><td>FEMALE</td><td>CHILD</td><td>OTHERS</td>
+                <td>MALE</td><td>FEMALE</td><td>CHILD</td><td>OTHERS</td>
+                <td>MALE</td><td>FEMALE</td><td>CHILD</td><td>OTHERS</td>
+            </tr>
+            <tr>
+                <td><input type="number" id="nm" oninput="calc()" min="0"></td>
+                <td><input type="number" id="nf" oninput="calc()" min="0"></td>
+                <td><input type="number" id="nc" oninput="calc()" min="0"></td>
+                <td><input type="number" id="no" oninput="calc()" min="0"></td> <!-- New Others -->
+                
+                <td><input type="number" id="om" oninput="calc()" min="0"></td>
+                <td><input type="number" id="of" oninput="calc()" min="0"></td>
+                <td><input type="number" id="oc" oninput="calc()" min="0"></td>
+                <td><input type="number" id="oo" oninput="calc()" min="0"></td> <!-- Old Others -->
+                
+                <td id="tm">0</td>
+                <td id="tf">0</td>
+                <td id="tc">0</td>
+                <td id="to">0</td> <!-- Total Others -->
+            </tr>
+            <tr>
+                <td colspan="4" id="sumNew">0</td>
+                <td colspan="4" id="sumOld">0</td>
+                <td colspan="4" id="sumGrand">0</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="btn-group">
+        <button class="btn btn-save" onclick="saveData()">
+            <i class="fas fa-save"></i> Save Month Data
+        </button>
+        <button class="btn btn-print" onclick="printMonthlyOnly()">
+            <i class="fas fa-print"></i> Print Monthly Report
+        </button>
+        <button class="btn btn-admin" onclick="showAdminReport()">
+            <i class="fas fa-chart-bar"></i> View Admin Report
+        </button>
+    </div>
+
+    <!-- ── ADMIN REPORT ── -->
+    <div id="adminArea">
+        <div class="report-title">
+            <h2 id="admInstDisp"></h2>
+            <h3>ADMINISTRATION REPORT &nbsp;<span id="admFYDisp"></span></h3>
+        </div>
+        <table id="admTable"></table>
+        <div class="btn-group" style="margin-top:18px;">
+            <button class="btn btn-print" onclick="printAdminOnly()">
+                <i class="fas fa-file-pdf"></i> Print Admin Report (PDF)
+            </button>
+            <button class="btn btn-close" onclick="document.getElementById('adminArea').style.display='none'">
+                <i class="fas fa-times"></i> Close
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function enterApp() {
+        document.getElementById('welcomePage').style.display = 'none';
+        document.getElementById('mainApp').style.display     = 'block';
+        loadSettings();
+        syncData();
+    }
+
+    function getYear() {
+        const y = document.getElementById('yearInput').value.trim();
+        return y || new Date().getFullYear().toString();
+    }
+
+    function saveSettings() {
+        const s = {
+            name: document.getElementById('instName').value,
+            fy:   document.getElementById('finYear').value,
+            year: document.getElementById('yearInput').value
+        };
+        localStorage.setItem('appSettings', JSON.stringify(s));
+        document.getElementById('dispInst').innerText = s.name;
+        const m = document.getElementById('monthSelect').value;
+        const y = s.year || new Date().getFullYear().toString();
+        document.getElementById('dispMonth').innerText = `${m} ${y}`;
+    }
+
+    function loadSettings() {
+        const s = JSON.parse(localStorage.getItem('appSettings'));
+        if (s) {
+            document.getElementById('instName').value  = s.name || '';
+            document.getElementById('finYear').value   = s.fy   || '';
+            document.getElementById('yearInput').value = s.year || new Date().getFullYear();
+            document.getElementById('dispInst').innerText = s.name || '';
+        } else {
+            document.getElementById('yearInput').value = new Date().getFullYear();
+        }
+    }
+
+    function calc() {
+        const v = id => Number(document.getElementById(id).value) || 0;
+        
+        // Horizontal Totals
+        const tm = v('nm') + v('om');
+        const tf = v('nf') + v('of');
+        const tc = v('nc') + v('oc');
+        const to = v('no') + v('oo'); // Others total
+        
+        document.getElementById('tm').innerText = tm;
+        document.getElementById('tf').innerText = tf;
+        document.getElementById('tc').innerText = tc;
+        document.getElementById('to').innerText = to;
+        
+        // Vertical Totals
+        const sNew = v('nm') + v('nf') + v('nc') + v('no');
+        const sOld = v('om') + v('of') + v('oc') + v('oo');
+        
+        document.getElementById('sumNew').innerText   = sNew;
+        document.getElementById('sumOld').innerText   = sOld;
+        document.getElementById('sumGrand').innerText = sNew + sOld;
+    }
+
+    function saveData() {
+        const m = document.getElementById('monthSelect').value;
+        const y = getYear();
+        const data = {
+            nm: document.getElementById('nm').value,
+            nf: document.getElementById('nf').value,
+            nc: document.getElementById('nc').value,
+            no: document.getElementById('no').value, // Others
+            om: document.getElementById('om').value,
+            of: document.getElementById('of').value,
+            oc: document.getElementById('oc').value,
+            oo: document.getElementById('oo').value  // Others
+        };
+        localStorage.setItem(`pts_${m}_${y}`, JSON.stringify(data));
+        alert(`${m} ${y} — ഡാറ്റ സേവ് ചെയ്തു ✓`);
+    }
+
+    function syncData() {
+        const m = document.getElementById('monthSelect').value;
+        const y = getYear();
+        document.getElementById('dispMonth').innerText = `${m} ${y}`;
+        const saved  = JSON.parse(localStorage.getItem(`pts_${m}_${y}`));
+        const fields = ['nm','nf','nc','no','om','of','oc','oo'];
+        if (saved) {
+            fields.forEach(f => document.getElementById(f).value = saved[f] || '');
+        } else {
+            fields.forEach(f => document.getElementById(f).value = '');
+        }
+        calc();
+    }
+
+    function showAdminReport() {
+        const MONTHS = ["APRIL","MAY","JUNE","JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER","JANUARY","FEBRUARY","MARCH"];
+        const year = getYear();
+        let g = { nm:0, nf:0, nc:0, no:0, om:0, of:0, oc:0, oo:0 };
+
+        MONTHS.forEach(m => {
+            const d = JSON.parse(localStorage.getItem(`pts_${m}_${year}`));
+            if (d) {
+                g.nm += +d.nm||0; g.nf += +d.nf||0; g.nc += +d.nc||0; g.no += +d.no||0;
+                g.om += +d.om||0; g.of += +d.of||0; g.oc += +d.oc||0; g.oo += +d.oo||0;
+            }
+        });
+
+        document.getElementById('admInstDisp').innerText = document.getElementById('instName').value;
+        document.getElementById('admFYDisp').innerText   = document.getElementById('finYear').value;
+
+        document.getElementById('admTable').innerHTML = `
+            <tr>
+                <th colspan="4">NEW</th>
+                <th colspan="4">OLD</th>
+                <th colspan="4">TOTAL</th>
+            </tr>
+            <tr>
+                <td>MALE</td><td>FEMALE</td><td>CHILD</td><td>OTHERS</td>
+                <td>MALE</td><td>FEMALE</td><td>CHILD</td><td>OTHERS</td>
+                <td>MALE</td><td>FEMALE</td><td>CHILD</td><td>OTHERS</td>
+            </tr>
+            <tr>
+                <td>${g.nm}</td><td>${g.nf}</td><td>${g.nc}</td><td>${g.no}</td>
+                <td>${g.om}</td><td>${g.of}</td><td>${g.oc}</td><td>${g.oo}</td>
+                <td>${g.nm+g.om}</td><td>${g.nf+g.of}</td><td>${g.nc+g.oc}</td><td>${g.no+g.oo}</td>
+            </tr>
+            <tr>
+                <td colspan="4">${g.nm+g.nf+g.nc+g.no}</td>
+                <td colspan="4">${g.om+g.of+g.oc+g.oo}</td>
+                <td colspan="4">${g.nm+g.nf+g.nc+g.no+g.om+g.of+g.oc+g.oo}</td>
+            </tr>`;
+
+        const adminEl = document.getElementById('adminArea');
+        adminEl.style.display = 'block';
+        adminEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function printMonthlyOnly() {
+        document.body.classList.remove('admin-print-mode');
+        window.print();
+    }
+
+    function printAdminOnly() {
+        document.body.classList.add('admin-print-mode');
+        window.print();
+        setTimeout(() => document.body.classList.remove('admin-print-mode'), 800);
+    }
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const namespace = "pts-sumteck";
+        const key = "page-visits"; 
+        fetch(`https://api.counterapi.dev/v1/${namespace}/${key}/up`)
+            .then(response => response.json())
+            .then(data => { document.getElementById('visit-count').innerText = data.count; })
+            .catch(error => {
+                console.error('Counter API Error:', error);
+                document.getElementById('visit-count').innerText = "0";
+            });
+    });
+</script>
+
+</body>
+</html>
